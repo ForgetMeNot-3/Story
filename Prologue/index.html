@@ -97,7 +97,7 @@
       #scene-header {
         text-align: center;
         padding: 20px;
-        font-size: 1.5rem;
+        font-size: 1.75rem;
         flex: 0 0 auto;
         border-bottom: 2px solid #00ffcc;
         box-shadow: 0 2px 10px #00ffcc;
@@ -159,7 +159,7 @@
         left: 20px;
         transform: translateY(-50%);
         border: 1px solid white;
-        opacity: 0.5; /* 设置透明度 */
+        opacity: 0.6; /* 设置透明度 */
         filter: blur(2px); /* 添加模糊效果 */
         display: none;
       }
@@ -197,28 +197,53 @@
       const scenes = {
         教室404: {
           description: "场景1的详细介绍...",
-          neighbors: ["场景2", "场景3"],
-          mapX: 50,
-          mapY: 50,
+          neighbors: ["走廊"],
+          mapX: 100,
+          mapY: 150,
         },
-        场景2: {
+        走廊: {
           description: "场景2的独特介绍...",
-          neighbors: ["教室404", "场景4"],
-          mapX: 150,
-          mapY: 50,
+          neighbors: ["教室404", "左侧走廊", "右侧走廊"],
+          mapX: 100,
+          mapY: 100,
         },
-        场景3: {
+        左侧走廊: {
           description: "场景3的特别介绍...",
-          neighbors: ["教室404"],
+          neighbors: ["走廊", "其他教室"],
+          mapX: 50,
+          mapY: 100,
+        },
+        右侧走廊: {
+          description: "场景4的精彩介绍...",
+          neighbors: ["走廊", "盥洗室", "楼梯"],
+          mapX: 150,
+          mapY: 100,
+        },
+        楼梯: {
+          description: "场景5的独特介绍...",
+          neighbors: ["右侧走廊"],
+          mapX: 150,
+          mapY: 150,
+        },
+        其他教室: {
+          description: "场景6的精彩介绍...",
+          neighbors: ["左侧走廊"],
           mapX: 50,
           mapY: 150,
         },
-        场景4: {
-          description: "场景4的精彩介绍...",
-          neighbors: ["场景2"],
+        盥洗室: {
+          description: "场景7的特别介绍...",
+          neighbors: ["右侧走廊"],
           mapX: 150,
-          mapY: 150,
+          mapY: 50,
         },
+      };
+
+      // 模拟账号密码库
+      const userDatabase = {
+        "九重秋叶 溯冥": "000000",
+        user2: "pass2",
+        1: "1",
       };
 
       // 页面加载完成后显示序章文字
@@ -264,7 +289,7 @@
         const username = document.getElementById("username").value;
         const password = document.getElementById("password").value;
         // 这里简单假设账号密码为 1/1
-        if (username === "1" && password === "1") {
+        if (userDatabase[username] === password) {
           const loginContainer = document.getElementById("login-container");
           const welcomeMessage = document.getElementById("welcome-message");
           const sceneContainer = document.getElementById("scene-container");
