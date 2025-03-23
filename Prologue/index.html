@@ -91,6 +91,9 @@
         flex-direction: column;
         height: 100vh;
         width: 100%;
+        background-size: cover; /* 背景图片覆盖整个容器 */
+        background-position: center; /* 背景图片居中显示 */
+        background-repeat: no-repeat; /* 背景图片不重复 */
       }
 
       /* 上方场景显示样式 */
@@ -188,6 +191,7 @@
     </div>
     <!-- 小地图 -->
     <canvas id="mini-map" width="200" height="200"></canvas>
+
     <script>
       let prologueTimeout;
       let clickHandlerAdded = false;
@@ -196,10 +200,12 @@
       // 存储每个场景的信息
       const scenes = {
         教室404: {
-          description: "场景1的详细介绍...",
+          description:
+            "空无一人的教室，淅淅沥沥的雨声。你醒了，昏昏沉沉。你在想什么？你在想什么？",
           neighbors: ["走廊"],
           mapX: 100,
           mapY: 150,
+          backgroundImage: "https://s21.ax1x.com/2025/03/23/pEBFla6.png",
         },
         走廊: {
           description: "场景2的独特介绍...",
@@ -332,6 +338,9 @@
         // 更新场景介绍
         document.getElementById("scene-description").textContent =
           scene.description;
+        // 设置场景背景图片
+        const sceneContainer = document.getElementById("scene-container");
+        sceneContainer.style.backgroundImage = `url(${scene.backgroundImage})`;
 
         // 清空按钮容器
         const buttonContainer = document.getElementById("button-container");
