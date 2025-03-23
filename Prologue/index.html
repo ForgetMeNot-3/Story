@@ -342,6 +342,9 @@
           const button = document.createElement("button");
           button.textContent = neighbor;
           button.onclick = () => changeScene(neighbor);
+          // 添加鼠标悬停事件
+          button.onmouseover = () => highlightMiniMapNode(neighbor);
+          button.onmouseout = () => drawMiniMap(sceneName);
           buttonContainer.appendChild(button);
         });
         // 绘制小地图
@@ -359,6 +362,38 @@
           ctx.beginPath();
           ctx.arc(scene.mapX, scene.mapY, 5, 0, 2 * Math.PI);
           ctx.fillStyle = sceneName === currentScene ? "red" : "white";
+          ctx.fill();
+
+          // 绘制连接线
+          scene.neighbors.forEach((neighbor) => {
+            const neighborScene = scenes[neighbor];
+            ctx.beginPath();
+            ctx.moveTo(scene.mapX, scene.mapY);
+            ctx.lineTo(neighborScene.mapX, neighborScene.mapY);
+            ctx.strokeStyle = "white";
+            ctx.stroke();
+          });
+        }
+      }
+      // 高亮小地图中的节点
+      function highlightMiniMapNode(sceneName) {
+        const currentScene =
+          document.getElementById("scene-header").textContent;
+        const canvas = document.getElementById("mini-map");
+        const ctx = canvas.getContext("2d");
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // 绘制场景点和连接线
+        for (const key in scenes) {
+          const scene = scenes[key];
+          ctx.beginPath();
+          ctx.arc(scene.mapX, scene.mapY, 5, 0, 2 * Math.PI);
+          ctx.fillStyle =
+            key === currentScene
+              ? "red"
+              : key === sceneName
+              ? "yellow"
+              : "white";
           ctx.fill();
 
           // 绘制连接线
