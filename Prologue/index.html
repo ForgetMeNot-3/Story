@@ -162,7 +162,7 @@
       <input type="text" id="username" placeholder="载入体" />
       <input type="password" id="password" placeholder="密钥" />
       <button onclick="checkLogin()">载入</button>
-      <p id="error-message">账号或密码错误，请重试！</p>
+      <p id="error-message">载入失败，请重新尝试</p>
     </div>
     <!-- 欢迎信息 -->
     <div id="welcome-message"></div>
@@ -171,13 +171,32 @@
       <div id="scene-header">当前场景</div>
       <div id="scene-description">这里是场景的介绍...</div>
       <div id="button-container">
-        <button onclick="changeScene('场景1')">场景1</button>
-        <button onclick="changeScene('场景2')">场景2</button>
+        <!-- 按钮将动态生成 -->
       </div>
     </div>
     <script>
       let prologueTimeout;
       let clickHandlerAdded = false;
+
+      // 存储每个场景的信息
+      const scenes = {
+        教室404: {
+          description: "场景1的详细介绍...",
+          neighbors: ["场景2", "场景3"],
+        },
+        场景2: {
+          description: "场景2的独特介绍...",
+          neighbors: ["教室404", "场景4"],
+        },
+        场景3: {
+          description: "场景3的特别介绍...",
+          neighbors: ["教室404"],
+        },
+        场景4: {
+          description: "场景4的精彩介绍...",
+          neighbors: ["场景2"],
+        },
+      };
 
       // 页面加载完成后显示序章文字
       window.onload = function () {
@@ -243,6 +262,8 @@
                   welcomeMessage.style.display = "none";
                   // 显示场景
                   sceneContainer.style.display = "flex";
+                  // 默认显示场景1
+                  changeScene("教室404");
                 }, 1000);
               }, 1000);
             }, 100);
@@ -254,10 +275,26 @@
 
       // 切换场景
       function changeScene(sceneName) {
+        const scene = scenes[sceneName];
+        if (!scene) return;
+
+        // 更新场景标题
         document.getElementById("scene-header").textContent = sceneName;
-        document.getElementById(
-          "scene-description"
-        ).textContent = `这里是 ${sceneName} 的介绍...`;
+        // 更新场景介绍
+        document.getElementById("scene-description").textContent =
+          scene.description;
+
+        // 清空按钮容器
+        const buttonContainer = document.getElementById("button-container");
+        buttonContainer.innerHTML = "";
+
+        // 动态生成按钮
+        scene.neighbors.forEach((neighbor) => {
+          const button = document.createElement("button");
+          button.textContent = neighbor;
+          button.onclick = () => changeScene(neighbor);
+          buttonContainer.appendChild(button);
+        });
       }
     </script>
   </body>
