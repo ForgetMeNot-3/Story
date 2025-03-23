@@ -151,6 +151,18 @@
           font-size: 14px; /* 减小基础字体大小 */
         }
       }
+
+      /* 小地图样式 */
+      #mini-map {
+        position: fixed;
+        top: 50%;
+        left: 20px;
+        transform: translateY(-50%);
+        border: 1px solid white;
+        opacity: 0.5; /* 设置透明度 */
+        filter: blur(2px); /* 添加模糊效果 */
+        display: none;
+      }
     </style>
   </head>
 
@@ -174,27 +186,38 @@
         <!-- 按钮将动态生成 -->
       </div>
     </div>
+    <!-- 小地图 -->
+    <canvas id="mini-map" width="200" height="200"></canvas>
     <script>
       let prologueTimeout;
       let clickHandlerAdded = false;
+      const miniMap = document.getElementById("mini-map"); // 提前获取小地图元素
 
       // 存储每个场景的信息
       const scenes = {
         教室404: {
           description: "场景1的详细介绍...",
           neighbors: ["场景2", "场景3"],
+          mapX: 50,
+          mapY: 50,
         },
         场景2: {
           description: "场景2的独特介绍...",
           neighbors: ["教室404", "场景4"],
+          mapX: 150,
+          mapY: 50,
         },
         场景3: {
           description: "场景3的特别介绍...",
           neighbors: ["教室404"],
+          mapX: 50,
+          mapY: 150,
         },
         场景4: {
           description: "场景4的精彩介绍...",
           neighbors: ["场景2"],
+          mapX: 150,
+          mapY: 150,
         },
       };
 
@@ -262,6 +285,7 @@
                   welcomeMessage.style.display = "none";
                   // 显示场景
                   sceneContainer.style.display = "flex";
+                  miniMap.style.display = "block"; // 显示小地图
                   // 默认显示场景1
                   changeScene("教室404");
                 }, 1000);
@@ -295,6 +319,33 @@
           button.onclick = () => changeScene(neighbor);
           buttonContainer.appendChild(button);
         });
+        // 绘制小地图
+        drawMiniMap(sceneName);
+      }
+      // 绘制小地图
+      function drawMiniMap(currentScene) {
+        const canvas = document.getElementById("mini-map");
+        const ctx = canvas.getContext("2d");
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // 绘制场景点和连接线
+        for (const sceneName in scenes) {
+          const scene = scenes[sceneName];
+          ctx.beginPath();
+          ctx.arc(scene.mapX, scene.mapY, 5, 0, 2 * Math.PI);
+          ctx.fillStyle = sceneName === currentScene ? "red" : "white";
+          ctx.fill();
+
+          // 绘制连接线
+          scene.neighbors.forEach((neighbor) => {
+            const neighborScene = scenes[neighbor];
+            ctx.beginPath();
+            ctx.moveTo(scene.mapX, scene.mapY);
+            ctx.lineTo(neighborScene.mapX, neighborScene.mapY);
+            ctx.strokeStyle = "white";
+            ctx.stroke();
+          });
+        }
       }
     </script>
   </body>
