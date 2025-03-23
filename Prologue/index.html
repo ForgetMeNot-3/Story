@@ -1,1 +1,230 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <!-- 原有 CSS 代码保持不变 -->
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>序章</title>
+    <style>
+      /* 全局样式重置 */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      /* 全局样式 */
+      body {
+        background-color: black;
+        color: white;
+        font-family: 楷体, Arial, sans-serif;
+        height: 100vh;
+        margin: 0;
+        display: block;
+        font-size: 40px;
+      }
+
+      /* 序章文字样式 */
+      #prologue-text {
+        opacity: 0;
+        transition: opacity 3s ease-in-out;
+        text-align: center;
+        font-size: 1.5rem;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        cursor: pointer;
+      }
+
+      /* 输入框容器样式 */
+      #login-container {
+        display: none;
+        text-align: center;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        opacity: 0;
+        transition: opacity 1s ease-in-out;
+      }
+
+      /* 输入框样式 */
+      input {
+        margin: 5px;
+        padding: 10px 15px; /* 增加内边距，让输入框更饱满 */
+        background-color: rgba(0, 0, 0, 0.3); /* 半透明黑色背景 */
+        border: 2px solid aliceblue; /* 亮绿色边框 */
+        border-radius: 5px; /* 圆角边框 */
+        color: white;
+        font-size: 1rem;
+        transition: all 0.3s ease; /* 过渡效果 */
+      }
+
+      input:focus {
+        outline: none; /* 移除默认聚焦边框 */
+        border-color: aliceblue; /* 聚焦时边框颜色变为紫色 */
+        box-shadow: 0 0 10px aliceblue; /* 聚焦时添加紫色阴影 */
+      }
+
+      /* 错误提示样式 */
+      #error-message {
+        color: red;
+        display: none;
+        font-size: 0.875rem;
+      }
+
+      /* 场景显示区域样式 */
+      #scene-container {
+        display: none;
+        flex-direction: column;
+        height: 100vh;
+        width: 100%;
+      }
+
+      /* 上方场景显示样式 */
+      #scene-header {
+        text-align: center;
+        padding: 20px;
+        font-size: 1.5rem;
+        flex: 0 0 auto;
+        border-bottom: 2px solid #00ffcc;
+        box-shadow: 0 2px 10px #00ffcc;
+        border-radius: 5px 5px 0 0;
+      }
+
+      /* 中间场景介绍栏样式 */
+      #scene-description {
+        flex: 1;
+        text-align: center;
+        padding: 20px;
+        overflow-y: auto;
+        border-left: 2px solid #00ffcc;
+        border-right: 2px solid #00ffcc;
+        box-shadow: 0 0 10px #00ffcc;
+        font-size: 1rem;
+      }
+
+      /* 下方按钮栏样式 */
+      #button-container {
+        text-align: center;
+        padding: 20px;
+        flex: 0 0 auto;
+        border-top: 2px solid #00ffcc;
+        box-shadow: 0 -2px 10px #00ffcc;
+        border-radius: 0 0 5px 5px;
+      }
+      /* 载入按钮样式 */
+      button {
+        margin: 5px;
+        padding: 10px 20px;
+        background-color: black;
+        border: none;
+        border-radius: 5px;
+        color: aliceblue;
+        font-size: 1rem;
+        font-family: 楷体, Arial, sans-serif;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      button:hover {
+        background-color: aliceblue;
+        color: black;
+        box-shadow: 0 0 10px aliceblue;
+      }
+
+      /* 媒体查询，适配小屏幕设备 */
+      @media (max-width: 768px) {
+        body {
+          font-size: 14px; /* 减小基础字体大小 */
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- 序章文字 -->
+    <div id="prologue-text">欢迎阅读我的【故事】</div>
+    <!-- 登录容器 -->
+    <div id="login-container">
+      <input type="text" id="username" placeholder="载入体" />
+      <input type="password" id="password" placeholder="密钥" />
+      <button onclick="checkLogin()">载入</button>
+      <p id="error-message">账号或密码错误，请重试！</p>
+    </div>
+    <!-- 场景容器 -->
+    <div id="scene-container">
+      <div id="scene-header">当前场景</div>
+      <div id="scene-description">这里是场景的介绍...</div>
+      <div id="button-container">
+        <button onclick="changeScene('场景1')">场景1</button>
+        <button onclick="changeScene('场景2')">场景2</button>
+      </div>
+    </div>
+    <script>
+      let prologueTimeout;
+      let clickHandlerAdded = false;
+
+      // 页面加载完成后显示序章文字
+      window.onload = function () {
+        const prologueText = document.getElementById("prologue-text");
+        prologueText.style.opacity = 1;
+        prologueTimeout = setTimeout(() => {
+          prologueText.style.opacity = 0;
+          setTimeout(() => {
+            const loginContainer = document.getElementById("login-container");
+            loginContainer.style.display = "block";
+            setTimeout(() => {
+              loginContainer.style.opacity = 1;
+            }, 100);
+          }, 3000);
+        }, 3000);
+
+        // 添加点击事件监听器
+        if (!clickHandlerAdded) {
+          document.addEventListener("click", skipPrologueOnClick);
+          clickHandlerAdded = true;
+        }
+      };
+
+      // 点击页面任意位置跳过序章文字
+      function skipPrologueOnClick() {
+        const prologueText = document.getElementById("prologue-text");
+        if (parseFloat(prologueText.style.opacity) > 0) {
+          clearTimeout(prologueTimeout);
+          prologueText.style.opacity = 0;
+          const loginContainer = document.getElementById("login-container");
+          loginContainer.style.display = "block";
+          setTimeout(() => {
+            loginContainer.style.opacity = 1;
+          }, 100);
+          // 移除点击事件监听器，确保点击一次后功能消失
+          document.removeEventListener("click", skipPrologueOnClick);
+        }
+      }
+
+      // 检查登录信息
+      function checkLogin() {
+        const username = document.getElementById("username").value;
+        const password = document.getElementById("password").value;
+        // 这里简单假设账号密码为 1/1
+        if (username === "1" && password === "1") {
+          document.getElementById("login-container").style.display = "none";
+          document.getElementById("scene-container").style.display = "flex";
+        } else {
+          document.getElementById("error-message").style.display = "block";
+        }
+      }
+
+      // 切换场景
+      function changeScene(sceneName) {
+        document.getElementById("scene-header").textContent = sceneName;
+        document.getElementById(
+          "scene-description"
+        ).textContent = `这里是 ${sceneName} 的介绍...`;
+      }
+    </script>
+  </body>
+</html>
 
