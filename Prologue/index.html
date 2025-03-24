@@ -98,13 +98,11 @@
 
       /* 上方场景显示样式 */
       #scene-header {
-        text-align: center;
+        position: relative;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
         padding: 20px;
-        font-size: 1.75rem;
-        flex: 0 0 auto;
-        border-bottom: 2px solid #00ffcc;
-        box-shadow: 0 2px 10px #00ffcc;
-        border-radius: 5px 5px 0 0;
       }
 
       /* 中间场景介绍栏样式 */
@@ -278,6 +276,18 @@
         max-width: 100%; /* 防止文本溢出 */
         word-break: break-word; /* 允许自动换行 */
       }
+
+      #user-avatar {
+        position: static !important; /* 覆盖之前的fixed定位 */
+        margin-left: 10px;
+        border-radius: 50%;
+        border: 2px solid white;
+        box-shadow: 0 0 10px white;
+      }
+
+      #user-info-popup {
+        display: none;
+      }
     </style>
   </head>
 
@@ -295,22 +305,42 @@
     <div id="welcome-message"></div>
     <!-- 场景容器 -->
     <div id="scene-container">
-      <div id="scene-header">当前场景</div>
+      <div id="scene-header">
+        <span id="scene-title">当前场景</span>
+        <!-- 新增头像元素 -->
+        <img
+          id="user-avatar"
+          src="https://s21.ax1x.com/2025/03/18/pEdbDU0.jpg"
+          alt="用户头像"
+          style="
+            float: right;
+            margin-left: 10px;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            display: none;
+            z-index: 9999;
+          ">
+      </div>
       <div id="scene-description">这里是场景的介绍...</div>
       <div id="button-container">
         <!-- 按钮将动态生成 -->
       </div>
+    </div>
+    <!-- 新增用户基础信息弹出框 -->
+    <div id="user-info-popup" style="display: none; position: fixed; top: 50px; right: 10px; background-color: rgba(0, 0, 0, 0.8); border: 2px solid #00ffcc; border-radius: 5px; padding: 20px; width: 200px; z-index: 100;">
+      <h2 id="user-info-username"></h2>
+      <p id="user-info-other"></p>
+    </div>
     </div>
     <!-- 小地图 -->
     <canvas id="mini-map" width="200" height="200"></canvas>
     <button id="backpack-button" onclick="toggleBackpack()">背包</button>
     <!-- 背包界面 -->
     <div id="backpack-container" style="display: none">
-      <h2 id="backpack-user"></h2>
       <div id="backpack-items"></div>
       <!-- 新增底部用户名显示 -->
       <div
-        id="backpack-footer"
         style="
           position: absolute;
           bottom: 10px;
@@ -352,11 +382,6 @@
         const backpackContainer = document.getElementById("backpack-container");
         if (backpackContainer.style.display === "none") {
           backpackContainer.style.display = "block";
-          // 同时更新顶部标题和底部显示
-          document.getElementById("backpack-user").textContent = currentUser;
-          document.getElementById(
-            "backpack-footer"
-          ).textContent = `${currentUser}的空间`;
           updateBackpackItems();
         } else {
           backpackContainer.style.display = "none";
@@ -449,7 +474,7 @@
           mapX: 100,
           mapY: 150,
           backgroundImage: "https://s21.ax1x.com/2025/03/23/pEBFla6.png",
-          investigationResult: "黑板上有半句...诗？",
+          investigationResult: "你在教室里发现了一些奇怪的符号。",
           items: [
             {
               name: "红粉笔",
@@ -471,7 +496,7 @@
           mapX: 100,
           mapY: 100,
           backgroundImage: "https://s21.ax1x.com/2025/03/23/pEBEKqs.png",
-          investigationResult: "潮湿的空气，地上有一些杂物。",
+          investigationResult: "你在教室里发现了一些奇怪的符号。",
           items: [
             {
               name: "地上残破的报纸",
@@ -485,7 +510,7 @@
           mapX: 50,
           mapY: 100,
           backgroundImage: "https://s21.ax1x.com/2025/03/23/pEBEQZn.png",
-          investigationResult: "很多和刚才相同的教室。",
+          investigationResult: "你在教室里发现了一些奇怪的符号。",
           items: [
             {
               name: "小纸条1",
@@ -499,7 +524,7 @@
           mapX: 150,
           mapY: 100,
           backgroundImage: "https://s21.ax1x.com/2025/03/23/pEBE1I0.png",
-          investigationResult: "左转盥洗室。右转楼梯。保持清醒。",
+          investigationResult: "你在教室里发现了一些奇怪的符号。",
           items: [
             {
               name: "小纸条2",
@@ -513,17 +538,7 @@
           mapX: 150,
           mapY: 150,
           backgroundImage: "https://s21.ax1x.com/2025/03/23/pEBETW8.png",
-          investigationResult: "隐约传来零碎的脚步声。楼上？楼下？",
-          items: [
-            {
-              name: "残破的标语",
-              description: "██ 止 在 楼 ██ 上 追 跑 ██ ██ 闹",
-            },
-            {
-              name: "学生名片",
-              description: "宁██...2██06...",
-            },
-          ],
+          investigationResult: "你在教室里发现了一些奇怪的符号。",
         },
         其他教室: {
           description: "",
@@ -531,7 +546,7 @@
           mapX: 50,
           mapY: 150,
           backgroundImage: "https://s21.ax1x.com/2025/03/23/pEBFla6.md.png",
-          investigationResult: "你觉得眼前的场景十分眼熟。",
+          investigationResult: "你在教室里发现了一些奇怪的符号。",
         },
         盥洗室: {
           description: "",
@@ -539,8 +554,7 @@
           mapX: 150,
           mapY: 50,
           backgroundImage: "https://s21.ax1x.com/2025/03/23/pEBE8iV.png",
-          investigationResult:
-            "铁锈味和消毒水混杂的气味冲进你的鼻腔。保持冷静。",
+          investigationResult: "你在教室里发现了一些奇怪的符号。",
           items: [
             {
               name: "浸湿的头发",
@@ -556,6 +570,51 @@
         user2: "pass2",
         1: "1",
       };
+
+      // 定义用户头像映射，可根据实际情况修改
+      const userAvatars = {
+        "九重秋叶 溯冥": "https://s21.ax1x.com/2025/03/18/pEdbDU0.jpg",
+        "user2": "https://s21.ax1x.com/2025/03/18/pEdbDU0.jpg",
+        "1": "https://s21.ax1x.com/2025/03/18/pEdbDU0.jpg"
+      };
+      
+// 定义用户基础信息映射，可根据实际情况修改
+const userInfos = {
+  "九重秋叶 溯冥": {
+    other: "【如我所愿】：生效中。"
+  },
+  "user2": {
+    other: "这是 user2 的其他信息"
+  },
+  "1": {
+    other: "1是所有人。"
+  }
+};
+
+// 点击窗口外关闭用户信息弹出框
+function closeUserInfoPopupOutside(event) {
+  const userInfoPopup = document.getElementById('user-info-popup');
+  if (!userInfoPopup.contains(event.target) && event.target.id!== 'user-avatar') {
+    userInfoPopup.style.display = 'none';
+    document.removeEventListener('click', closeUserInfoPopupOutside);
+  }
+}
+
+// 点击头像显示用户基础信息栏
+function showUserInfo() {
+  const userInfoPopup = document.getElementById('user-info-popup');
+  const userInfoUsername = document.getElementById('user-info-username');
+  const userInfoOther = document.getElementById('user-info-other');
+
+  userInfoUsername.textContent = currentUser;
+  userInfoOther.textContent = userInfos[currentUser]? userInfos[currentUser].other : '暂无更多信息';
+
+  userInfoPopup.style.display = 'block';
+
+  // 添加点击事件监听器，点击窗口外关闭弹出框
+  document.addEventListener('click', closeUserInfoPopupOutside);
+}
+
 
       // 页面加载完成后显示序章文字
       window.onload = function () {
@@ -600,7 +659,7 @@
         const username = document.getElementById("username").value;
         const password = document.getElementById("password").value;
         // 新增用户名存储
-        currentUser = username; // <-- 这行需要补充
+        currentUser = username; 
         // 这里简单假设账号密码为 1/1
         if (userDatabase[username] === password) {
           const loginContainer = document.getElementById("login-container");
@@ -626,6 +685,15 @@
                   miniMap.style.display = "block"; // 显示小地图
                   // 默认显示场景1
                   changeScene("教室404");
+                  // 修复头像显示逻辑
+      const userAvatar = document.getElementById('user-avatar');
+      if (userAvatar) {
+        userAvatar.src = userAvatars[username] || 'https://s21.ax1x.com/2025/03/18/pEdbDU0.jpg';
+        userAvatar.style.display = 'block';
+        userAvatar.addEventListener('click', showUserInfo);
+      } else {
+        console.error('未找到用户头像元素');
+      }
                 }, 1000);
               }, 1000);
             }, 100);
@@ -640,8 +708,8 @@
         const scene = scenes[sceneName];
         if (!scene) return;
 
-        // 更新场景标题
-        document.getElementById("scene-header").textContent = sceneName;
+        // 修改为更新标题元素而不是整个header
+  document.getElementById("scene-title").textContent = sceneName;
         // 更新场景介绍
         document.getElementById("scene-description").textContent =
           scene.description;
