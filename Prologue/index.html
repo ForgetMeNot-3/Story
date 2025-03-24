@@ -166,6 +166,118 @@
         filter: blur(2px); /* 添加模糊效果 */
         display: none;
       }
+
+      /* 背包按钮样式 */
+      #backpack-button {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        margin: 5px;
+        padding: 10px 20px;
+        background-color: black;
+        border: none;
+        border-radius: 5px;
+        color: aliceblue;
+        font-size: 1rem;
+        font-family: 楷体, Arial, sans-serif;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        opacity: 0.6; /* 添加透明度 */
+        display: none; /* 初始隐藏 */
+      }
+
+      #backpack-button:hover {
+        background-color: aliceblue;
+        color: black;
+        box-shadow: 0 0 10px aliceblue;
+        opacity: 1; /* 鼠标悬停时恢复不透明 */
+      }
+
+      /* 背包界面样式 */
+      #backpack-container {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: rgba(0, 0, 0, 0.8);
+        border: 2px solid #00ffcc;
+        border-radius: 5px;
+        padding: 20px;
+        width: 300px;
+        height: 400px;
+        overflow-y: auto;
+        z-index: 100;
+      }
+
+      #backpack-user {
+        text-align: center;
+        color: white;
+        margin-bottom: 10px;
+      }
+
+      #backpack-items {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      /* 调查结果小窗样式 */
+      #investigation-popup {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: rgba(0, 0, 0, 0.9);
+        border: 2px solid #00ffcc;
+        border-radius: 5px;
+        padding: 20px;
+        width: 300px;
+        min-height: 150px; /* 新增最小高度 */
+        z-index: 9999;
+        display: none;
+        box-shadow: 0 0 20px #00ffcc; /* 添加发光效果 */
+        display: flex; /* 新增弹性布局 */
+        align-items: center; /* 垂直居中 */
+        justify-content: center; /* 水平居中 */
+      }
+
+      #investigation-result {
+        color: white;
+        font-size: 1.2rem; /* 增大字体 */
+        text-align: center;
+        margin: 0; /* 移除默认段落边距 */
+        max-width: 100%; /* 防止文本溢出 */
+        word-break: break-word; /* 允许自动换行 */
+      }
+
+      /* 物品介绍小窗样式 */
+      #item-info-popup {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: rgba(0, 0, 0, 0.9);
+        border: 2px solid #00ffcc;
+        border-radius: 5px;
+        padding: 20px;
+        width: 300px;
+        min-height: 150px; /* 新增最小高度 */
+        z-index: 9999;
+        display: none;
+        box-shadow: 0 0 20px #00ffcc; /* 添加发光效果 */
+        display: flex; /* 新增弹性布局 */
+        align-items: center; /* 垂直居中 */
+        justify-content: center; /* 水平居中 */
+      }
+
+      #item-info {
+        color: white;
+        font-size: 1.2rem; /* 增大字体 */
+        text-align: center;
+        margin: 0; /* 移除默认段落边距 */
+        max-width: 100%; /* 防止文本溢出 */
+        word-break: break-word; /* 允许自动换行 */
+      }
     </style>
   </head>
 
@@ -191,11 +303,142 @@
     </div>
     <!-- 小地图 -->
     <canvas id="mini-map" width="200" height="200"></canvas>
+    <button id="backpack-button" onclick="toggleBackpack()">背包</button>
+    <!-- 背包界面 -->
+    <div id="backpack-container" style="display: none">
+      <h2 id="backpack-user"></h2>
+      <div id="backpack-items"></div>
+      <!-- 新增底部用户名显示 -->
+      <div
+        id="backpack-footer"
+        style="
+          position: absolute;
+          bottom: 10px;
+          width: calc(100% - 40px);
+          text-align: center;
+          color: #00ffcc;
+          font-size: 0.9rem;
+        "
+      ></div>
+    </div>
+    <!-- 调查结果小窗 -->
+    <div id="investigation-popup" style="display: none">
+      <p id="investigation-result"></p>
+      <div
+        id="investigation-items"
+        style="
+          margin-top: 20px;
+          display: flex;
+          flex-wrap: wrap;
+          gap: 10px;
+          justify-content: center;
+        "
+      ></div>
+    </div>
+    <!-- 物品介绍小窗 -->
+    <div id="item-info-popup" style="display: none">
+      <p id="item-info"></p>
+    </div>
 
     <script>
       let prologueTimeout;
       let clickHandlerAdded = false;
       const miniMap = document.getElementById("mini-map"); // 提前获取小地图元素
+      let backpack = [];
+      let currentUser = "";
+
+      // 切换背包界面显示状态
+      function toggleBackpack() {
+        const backpackContainer = document.getElementById("backpack-container");
+        if (backpackContainer.style.display === "none") {
+          backpackContainer.style.display = "block";
+          // 同时更新顶部标题和底部显示
+          document.getElementById("backpack-user").textContent = currentUser;
+          document.getElementById(
+            "backpack-footer"
+          ).textContent = `${currentUser}的空间`;
+          updateBackpackItems();
+        } else {
+          backpackContainer.style.display = "none";
+        }
+      }
+
+      // 更新背包中的物品显示
+      function updateBackpackItems() {
+        const backpackItems = document.getElementById("backpack-items");
+        backpackItems.innerHTML = "";
+        backpack.forEach((item) => {
+          const itemButton = document.createElement("button");
+          itemButton.textContent = item.name;
+          itemButton.onclick = () => showItemInfo(item);
+          backpackItems.appendChild(itemButton);
+        });
+      }
+
+      // 显示物品介绍小窗
+      function showItemInfo(item) {
+        const itemInfoPopup = document.getElementById("item-info-popup");
+        const itemInfo = document.getElementById("item-info");
+        itemInfo.textContent = item.description;
+        itemInfoPopup.style.display = "block";
+
+        function clickHandler(e) {
+          if (!itemInfoPopup.contains(e.target)) {
+            itemInfoPopup.style.display = "none";
+            document.removeEventListener("click", clickHandler);
+          }
+        }
+
+        // 添加100ms延迟绑定确保点击事件完成冒泡
+        setTimeout(() => {
+          document.removeEventListener("click", clickHandler); // 先移除旧的监听
+          document.addEventListener("click", clickHandler);
+        }, 100);
+      }
+
+      // 点击窗口外关闭物品介绍小窗
+      function closeItemInfoPopupOutside(event) {
+        const itemInfoPopup = document.getElementById("item-info-popup");
+        if (!itemInfoPopup.contains(event.target)) {
+          itemInfoPopup.style.display = "none";
+        }
+      }
+
+      // 显示调查结果小窗
+      function showInvestigationResult(result) {
+        const investigationPopup = document.getElementById(
+          "investigation-popup"
+        );
+        const investigationResult = document.getElementById(
+          "investigation-result"
+        );
+        investigationResult.textContent = result;
+        investigationPopup.style.display = "block";
+
+        // 同步延迟绑定逻辑
+        setTimeout(() => {
+          document.addEventListener("click", closeInvestigationPopupOutside);
+        }, 100);
+      }
+
+      // 点击窗口外关闭调查结果小窗
+      function closeInvestigationPopupOutside(event) {
+        const investigationPopup = document.getElementById(
+          "investigation-popup"
+        );
+        if (!investigationPopup.contains(event.target)) {
+          investigationPopup.style.display = "none";
+          // 仅移除本次绑定的监听器
+          document.removeEventListener("click", closeInvestigationPopupOutside);
+        }
+      }
+
+      // 处理物品按钮点击事件
+      function pickItem(item, button) {
+        backpack.push(item);
+        button.style.display = "none";
+        updateBackpackItems();
+      }
 
       // 存储每个场景的信息
       const scenes = {
@@ -206,6 +449,21 @@
           mapX: 100,
           mapY: 150,
           backgroundImage: "https://s21.ax1x.com/2025/03/23/pEBFla6.png",
+          investigationResult: "你在教室里发现了一些奇怪的符号。",
+          items: [
+            {
+              name: "红粉笔",
+              description: "红粉笔，拿久了容易浸染红色。",
+            },
+            {
+              name: "白粉笔",
+              description: "白粉笔，拿久了容易浸染白色。",
+            },
+            {
+              name: "诗集",
+              description: "看样子是唐诗集，你能闻到浓郁的书香。",
+            },
+          ],
         },
         走廊: {
           description: "",
@@ -300,6 +558,8 @@
       function checkLogin() {
         const username = document.getElementById("username").value;
         const password = document.getElementById("password").value;
+        // 新增用户名存储
+        currentUser = username; // <-- 这行需要补充
         // 这里简单假设账号密码为 1/1
         if (userDatabase[username] === password) {
           const loginContainer = document.getElementById("login-container");
@@ -362,9 +622,41 @@
           button.onmouseout = () => drawMiniMap(sceneName);
           buttonContainer.appendChild(button);
         });
+
+        // 添加调查按钮
+        if (scene.investigationResult) {
+          const investigationButton = document.createElement("button");
+          investigationButton.textContent = "调查";
+          investigationButton.onclick = () => {
+            showInvestigationResult(scene.investigationResult);
+            // 在弹窗中生成物品按钮
+            const itemsContainer = document.getElementById(
+              "investigation-items"
+            );
+            itemsContainer.innerHTML = "";
+            if (scene.items) {
+              scene.items.forEach((item) => {
+                // 添加背包检查：只显示未拾取的物品
+                if (!backpack.some((i) => i.name === item.name)) {
+                  const itemButton = document.createElement("button");
+                  itemButton.textContent = "拾取" + item.name;
+                  itemButton.onclick = () => pickItem(item, itemButton);
+                  itemsContainer.appendChild(itemButton);
+                }
+              });
+            }
+          };
+          buttonContainer.appendChild(investigationButton);
+        }
+
         // 绘制小地图
         drawMiniMap(sceneName);
+
+        // 显示背包按钮
+        const backpackButton = document.getElementById("backpack-button");
+        backpackButton.style.display = "block";
       }
+
       // 绘制小地图
       function drawMiniMap(currentScene) {
         const canvas = document.getElementById("mini-map");
