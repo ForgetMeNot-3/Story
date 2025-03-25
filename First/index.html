@@ -1,1 +1,825 @@
 
+<!DOCTYPE html>
+<html>
+  <head>
+    <!-- 原有 CSS 代码保持不变 -->
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>一欢宴迎客</title>
+    <style>
+      /* 全局样式重置 */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      /* 全局样式 */
+      html {
+        background-color: black;
+        color: white;
+        font-family: 楷体, Arial, sans-serif;
+        height: 100vh;
+        margin: 0;
+        display: block;
+        font-size: 40px;
+      }
+
+      /* 序章文字样式 */
+      #prologue-text {
+        opacity: 0;
+        transition: opacity 3s ease-in-out;
+        text-align: center;
+        font-size: 1.5rem;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
+
+      /* 输入框容器样式 */
+      #login-container {
+        display: none;
+        text-align: center;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        opacity: 0;
+        transition: opacity 1s ease-in-out;
+      }
+
+      /* 欢迎信息样式 */
+      #welcome-message {
+        display: none;
+        text-align: center;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        opacity: 0;
+        transition: opacity 1s ease-in-out;
+      }
+
+      /* 输入框样式 */
+      input {
+        margin: 5px;
+        padding: 10px 15px; /* 增加内边距，让输入框更饱满 */
+        background-color: rgba(0, 0, 0, 0.3); /* 半透明黑色背景 */
+        border: 2px solid aliceblue; /* 亮绿色边框 */
+        border-radius: 5px; /* 圆角边框 */
+        color: white;
+        font-size: 1rem;
+        transition: all 0.3s ease; /* 过渡效果 */
+      }
+
+      input:focus {
+        outline: none; /* 移除默认聚焦边框 */
+        border-color: aliceblue; /* 聚焦时边框颜色变为紫色 */
+        box-shadow: 0 0 10px aliceblue; /* 聚焦时添加紫色阴影 */
+      }
+
+      /* 错误提示样式 */
+      #error-message {
+        color: red;
+        display: none;
+        font-size: 0.875rem;
+      }
+
+      /* 场景显示区域样式 */
+      #scene-container {
+        display: none;
+        flex-direction: column;
+        height: 100vh;
+        width: 100%;
+        background-size: cover; /* 背景图片覆盖整个容器 */
+        background-position: center; /* 背景图片居中显示 */
+        background-repeat: no-repeat; /* 背景图片不重复 */
+      }
+
+      /* 上方场景显示样式 */
+      #scene-header {
+        position: relative;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px;
+      }
+
+      /* 中间场景介绍栏样式 */
+      #scene-description {
+        flex: 1;
+        text-align: center;
+        padding: 20px;
+        overflow-y: auto;
+        border-left: 2px solid #00ffcc;
+        border-right: 2px solid #00ffcc;
+        box-shadow: 0 0 10px #00ffcc;
+        font-size: 1rem;
+      }
+
+      /* 下方按钮栏样式 */
+      #button-container {
+        text-align: center;
+        padding: 20px;
+        flex: 0 0 auto;
+        border-top: 2px solid #00ffcc;
+        box-shadow: 0 -2px 10px #00ffcc;
+        border-radius: 0 0 5px 5px;
+      }
+      /* 载入按钮样式 */
+      button {
+        margin: 5px;
+        padding: 10px 20px;
+        background-color: black;
+        border: none;
+        border-radius: 5px;
+        color: aliceblue;
+        font-size: 1rem;
+        font-family: 楷体, Arial, sans-serif;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      button:hover {
+        background-color: aliceblue;
+        color: black;
+        box-shadow: 0 0 10px aliceblue;
+      }
+
+      /* 媒体查询，适配小屏幕设备 */
+      @media (max-width: 768px) {
+        html {
+          font-size: 14px; /* 减小基础字体大小 */
+        }
+      }
+
+      /* 小地图样式 */
+      #mini-map {
+        position: fixed;
+        top: 50%;
+        left: 20px;
+        transform: translateY(-50%);
+        border: 1px solid white;
+        opacity: 0.6; /* 设置透明度 */
+        filter: blur(2px); /* 添加模糊效果 */
+        display: none;
+      }
+
+      /* 背包按钮样式 */
+      #backpack-button {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        margin: 5px;
+        padding: 10px 20px;
+        background-color: black;
+        border: none;
+        border-radius: 5px;
+        color: aliceblue;
+        font-size: 1rem;
+        font-family: 楷体, Arial, sans-serif;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        opacity: 0.6; /* 添加透明度 */
+        display: none; /* 初始隐藏 */
+      }
+
+      #backpack-button:hover {
+        background-color: aliceblue;
+        color: black;
+        box-shadow: 0 0 10px aliceblue;
+        opacity: 1; /* 鼠标悬停时恢复不透明 */
+      }
+
+      /* 背包界面样式 */
+      #backpack-container {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: rgba(0, 0, 0, 0.8);
+        border: 2px solid #00ffcc;
+        border-radius: 5px;
+        padding: 20px;
+        width: 300px;
+        height: 400px;
+        overflow-y: auto;
+        z-index: 100;
+      }
+
+      #backpack-user {
+        text-align: center;
+        color: white;
+        margin-bottom: 10px;
+      }
+
+      #backpack-items {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      /* 调查结果小窗样式 */
+      #investigation-popup {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: rgba(0, 0, 0, 0.9);
+        border: 2px solid #00ffcc;
+        border-radius: 5px;
+        padding: 20px;
+        width: 300px;
+        min-height: 150px; /* 新增最小高度 */
+        z-index: 9999;
+        display: none;
+        box-shadow: 0 0 20px #00ffcc; /* 添加发光效果 */
+        display: flex; /* 新增弹性布局 */
+        align-items: center; /* 垂直居中 */
+        justify-content: center; /* 水平居中 */
+      }
+
+      #investigation-result {
+        color: white;
+        font-size: 1.2rem; /* 增大字体 */
+        text-align: center;
+        margin: 0; /* 移除默认段落边距 */
+        max-width: 100%; /* 防止文本溢出 */
+        word-break: break-word; /* 允许自动换行 */
+      }
+
+      /* 物品介绍小窗样式 */
+      #item-info-popup {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: rgba(0, 0, 0, 0.9);
+        border: 2px solid #00ffcc;
+        border-radius: 5px;
+        padding: 20px;
+        width: 300px;
+        min-height: 150px; /* 新增最小高度 */
+        z-index: 9999;
+        display: none;
+        box-shadow: 0 0 20px #00ffcc; /* 添加发光效果 */
+        display: flex; /* 新增弹性布局 */
+        align-items: center; /* 垂直居中 */
+        justify-content: center; /* 水平居中 */
+      }
+
+      #item-info {
+        color: white;
+        font-size: 1.2rem; /* 增大字体 */
+        text-align: center;
+        margin: 0; /* 移除默认段落边距 */
+        max-width: 100%; /* 防止文本溢出 */
+        word-break: break-word; /* 允许自动换行 */
+      }
+
+      #user-avatar {
+        position: static !important; /* 覆盖之前的fixed定位 */
+        margin-left: 10px;
+        border-radius: 50%;
+        border: 2px solid white;
+        box-shadow: 0 0 10px white;
+      }
+
+      #user-info-popup {
+        display: none;
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- 序章文字 -->
+    <div id="prologue-text">【故事一·欢宴迎客】</div>
+    <!-- 登录容器 -->
+    <div id="login-container">
+      <input type="text" id="username" placeholder="载入体" />
+      <input type="password" id="password" placeholder="密钥" />
+      <button onclick="checkLogin()">载入</button>
+      <p id="error-message">载入失败，请重新尝试</p>
+    </div>
+    <!-- 欢迎信息 -->
+    <div id="welcome-message"></div>
+    <!-- 场景容器 -->
+    <div id="scene-container">
+      <div id="scene-header">
+        <span id="scene-title">当前场景</span>
+        <!-- 新增头像元素 -->
+        <img
+          id="user-avatar"
+          src="https://s21.ax1x.com/2025/03/18/pEdbDU0.jpg"
+          alt="用户头像"
+          style="
+            float: right;
+            margin-left: 10px;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            display: none;
+            z-index: 9999;
+          ">
+      </div>
+      <div id="scene-description">这里是场景的介绍...</div>
+      <div id="button-container">
+        <!-- 按钮将动态生成 -->
+      </div>
+    </div>
+    <!-- 新增用户基础信息弹出框 -->
+    <div id="user-info-popup" style="display: none; position: fixed; top: 50px; right: 10px; background-color: rgba(0, 0, 0, 0.8); border: 2px solid #00ffcc; border-radius: 5px; padding: 20px; width: 200px; z-index: 100;">
+      <h2 id="user-info-username"></h2>
+      <p id="user-info-other"></p>
+    </div>
+    </div>
+    <button id="backpack-button" onclick="toggleBackpack()">背包</button>
+    <!-- 背包界面 -->
+    <div id="backpack-container" style="display: none">
+      <div id="backpack-items"></div>
+      <!-- 新增底部用户名显示 -->
+      <div
+        style="
+          position: absolute;
+          bottom: 10px;
+          width: calc(100% - 40px);
+          text-align: center;
+          color: #00ffcc;
+          font-size: 0.9rem;
+        "
+      ></div>
+    </div>
+    <!-- 调查结果小窗 -->
+    <div id="investigation-popup" style="display: none">
+      <p id="investigation-result"></p>
+      <div
+        id="investigation-items"
+        style="
+          margin-top: 20px;
+          display: flex;
+          flex-wrap: wrap;
+          gap: 10px;
+          justify-content: center;
+        "
+      ></div>
+    </div>
+    <!-- 物品介绍小窗 -->
+    <div id="item-info-popup" style="display: none">
+      <p id="item-info"></p>
+    </div>
+
+    <script>
+      let prologueTimeout;
+      let clickHandlerAdded = false;
+      const miniMap = document.getElementById("mini-map"); // 提前获取小地图元素
+      let backpack = [];
+      let currentUser = "";
+
+      // 切换背包界面显示状态
+      function toggleBackpack() {
+        const backpackContainer = document.getElementById("backpack-container");
+        if (backpackContainer.style.display === "none") {
+          backpackContainer.style.display = "block";
+          updateBackpackItems();
+        } else {
+          backpackContainer.style.display = "none";
+        }
+      }
+
+      // 更新背包中的物品显示
+      function updateBackpackItems() {
+        const backpackItems = document.getElementById("backpack-items");
+        backpackItems.innerHTML = "";
+        backpack.forEach((item) => {
+          const itemButton = document.createElement("button");
+          itemButton.textContent = item.name;
+          itemButton.onclick = () => showItemInfo(item);
+          backpackItems.appendChild(itemButton);
+        });
+      }
+
+      // 显示物品介绍小窗
+      function showItemInfo(item) {
+        const itemInfoPopup = document.getElementById("item-info-popup");
+        const itemInfo = document.getElementById("item-info");
+        itemInfo.textContent = item.description;
+        itemInfoPopup.style.display = "block";
+
+        function clickHandler(e) {
+          if (!itemInfoPopup.contains(e.target)) {
+            itemInfoPopup.style.display = "none";
+            document.removeEventListener("click", clickHandler);
+          }
+        }
+
+        // 添加100ms延迟绑定确保点击事件完成冒泡
+        setTimeout(() => {
+          document.removeEventListener("click", clickHandler); // 先移除旧的监听
+          document.addEventListener("click", clickHandler);
+        }, 100);
+      }
+
+      // 点击窗口外关闭物品介绍小窗
+      function closeItemInfoPopupOutside(event) {
+        const itemInfoPopup = document.getElementById("item-info-popup");
+        if (!itemInfoPopup.contains(event.target)) {
+          itemInfoPopup.style.display = "none";
+        }
+      }
+
+      // 显示调查结果小窗
+      function showInvestigationResult(result) {
+        const investigationPopup = document.getElementById(
+          "investigation-popup"
+        );
+        const investigationResult = document.getElementById(
+          "investigation-result"
+        );
+        investigationResult.textContent = result;
+        investigationPopup.style.display = "block";
+
+        // 同步延迟绑定逻辑
+        setTimeout(() => {
+          document.addEventListener("click", closeInvestigationPopupOutside);
+        }, 100);
+      }
+
+      // 点击窗口外关闭调查结果小窗
+      function closeInvestigationPopupOutside(event) {
+        const investigationPopup = document.getElementById(
+          "investigation-popup"
+        );
+        if (!investigationPopup.contains(event.target)) {
+          investigationPopup.style.display = "none";
+          // 仅移除本次绑定的监听器
+          document.removeEventListener("click", closeInvestigationPopupOutside);
+        }
+      }
+
+      // 处理物品按钮点击事件
+      function pickItem(item, button) {
+        backpack.push(item);
+        button.style.display = "none";
+        updateBackpackItems();
+      }
+
+      // 存储每个场景的信息
+      const scenes = {
+        黑云压城: {
+          description:
+            "黑云压城城欲摧，血日绽空天欲明。",
+          neighbors: ["开门献城"],
+          backgroundImage: "https://s21.ax1x.com/2025/03/23/pEBFla6.png",
+          investigationResult: "你听到了侵略者铁骑的怒吼，大地的振动声沉闷。城外的战斗染红了晚霞，比晚风更冷的是守城将士们的心。",
+          items: [
+            {
+              name: "燕脂",
+              description: "塞上燕脂凝夜紫",
+            },
+            {
+              name: "鼓槌",
+              description: "被战士们的血液染上了黑色，但鼓声从未停歇。",
+            },
+            {
+              name: "断成两截的枪",
+              description: "非常沉重坚固的一柄钢枪，似乎不像是战斗中损坏的。",
+            },
+          ],
+        },
+        开门献城: {
+          description: "王爷...王爷......",
+          neighbors: ["逃离", "静观其变"],
+          mapX: 100,
+          mapY: 100,
+          backgroundImage: "https://s21.ax1x.com/2025/03/23/pEBEKqs.png",
+          investigationResult: "",
+          items: [
+            {
+              name: "地上残破的报纸",
+              description: "...2007年，德木中学发生3起...",
+            },
+          ],
+        },
+        左侧走廊: {
+          description: "",
+          neighbors: ["走廊", "其他教室"],
+          mapX: 50,
+          mapY: 100,
+          backgroundImage: "https://s21.ax1x.com/2025/03/23/pEBEQZn.png",
+          investigationResult: "你在教室里发现了一些奇怪的符号。",
+          items: [
+            {
+              name: "小纸条1",
+              description: "...吾不识青天高，黄地厚...",
+            },
+          ],
+        },
+        右侧走廊: {
+          description: "",
+          neighbors: ["走廊", "盥洗室", "楼梯"],
+          mapX: 150,
+          mapY: 100,
+          backgroundImage: "https://s21.ax1x.com/2025/03/23/pEBE1I0.png",
+          investigationResult: "你在教室里发现了一些奇怪的符号。",
+          items: [
+            {
+              name: "小纸条2",
+              description: "...衣如飞鹑马如狗，临歧击剑生铜吼...",
+            },
+          ],
+        },
+        楼梯: {
+          description: "",
+          neighbors: ["右侧走廊"],
+          mapX: 150,
+          mapY: 150,
+          backgroundImage: "https://s21.ax1x.com/2025/03/23/pEBETW8.png",
+          investigationResult: "你在教室里发现了一些奇怪的符号。",
+        },
+        其他教室: {
+          description: "",
+          neighbors: ["左侧走廊"],
+          mapX: 50,
+          mapY: 150,
+          backgroundImage: "https://s21.ax1x.com/2025/03/23/pEBFla6.md.png",
+          investigationResult: "你在教室里发现了一些奇怪的符号。",
+        },
+        盥洗室: {
+          description: "",
+          neighbors: ["右侧走廊"],
+          mapX: 150,
+          mapY: 50,
+          backgroundImage: "https://s21.ax1x.com/2025/03/23/pEBE8iV.png",
+          investigationResult: "你在教室里发现了一些奇怪的符号。",
+          items: [
+            {
+              name: "浸湿的头发",
+              description: "有长有短，有白有黑",
+            },
+          ],
+        },
+      };
+
+      // 模拟账号密码库
+      const userDatabase = {
+        "九重秋叶 溯冥": "000000",
+        "星火雨": "111111",
+        1: "1",
+      };
+
+      // 定义用户头像映射，可根据实际情况修改
+      const userAvatars = {
+        "九重秋叶 溯冥": "https://s21.ax1x.com/2025/03/18/pEdbDU0.jpg",
+        "星火雨": "https://s21.ax1x.com/2025/03/18/pEdbDU0.jpg",
+        "1": "https://s21.ax1x.com/2025/03/18/pEdbDU0.jpg"
+      };
+      
+// 定义用户基础信息映射，可根据实际情况修改
+const userInfos = {
+  "九重秋叶 溯冥": {
+    other: "【如我所愿】：生效中。"
+  },
+  "星火雨": {
+    other: "【华彩假面】：生效中。"
+  },
+  "1": {
+    other: "1是所有人。"
+  }
+};
+
+// 点击窗口外关闭用户信息弹出框
+function closeUserInfoPopupOutside(event) {
+  const userInfoPopup = document.getElementById('user-info-popup');
+  if (!userInfoPopup.contains(event.target) && event.target.id!== 'user-avatar') {
+    userInfoPopup.style.display = 'none';
+    document.removeEventListener('click', closeUserInfoPopupOutside);
+  }
+}
+
+// 点击头像显示用户基础信息栏
+function showUserInfo() {
+  const userInfoPopup = document.getElementById('user-info-popup');
+  const userInfoUsername = document.getElementById('user-info-username');
+  const userInfoOther = document.getElementById('user-info-other');
+
+  userInfoUsername.textContent = currentUser;
+  userInfoOther.textContent = userInfos[currentUser]? userInfos[currentUser].other : '暂无更多信息';
+
+  userInfoPopup.style.display = 'block';
+
+  // 添加点击事件监听器，点击窗口外关闭弹出框
+  document.addEventListener('click', closeUserInfoPopupOutside);
+}
+
+
+      // 页面加载完成后显示序章文字
+      window.onload = function () {
+        const prologueText = document.getElementById("prologue-text");
+        prologueText.style.opacity = 1;
+        prologueTimeout = setTimeout(() => {
+          prologueText.style.opacity = 0;
+          setTimeout(() => {
+            const loginContainer = document.getElementById("login-container");
+            loginContainer.style.display = "block";
+            setTimeout(() => {
+              loginContainer.style.opacity = 1;
+            }, 100);
+          }, 3000);
+        }, 3000);
+
+        // 添加点击事件监听器
+        if (!clickHandlerAdded) {
+          document.addEventListener("click", skipPrologueOnClick);
+          clickHandlerAdded = true;
+        }
+      };
+
+      // 点击页面任意位置跳过序章文字
+      function skipPrologueOnClick() {
+        const prologueText = document.getElementById("prologue-text");
+        if (parseFloat(prologueText.style.opacity) > 0) {
+          clearTimeout(prologueTimeout);
+          prologueText.style.opacity = 0;
+          const loginContainer = document.getElementById("login-container");
+          loginContainer.style.display = "block";
+          setTimeout(() => {
+            loginContainer.style.opacity = 1;
+          }, 100);
+          // 移除点击事件监听器，确保点击一次后功能消失
+          document.removeEventListener("click", skipPrologueOnClick);
+        }
+      }
+
+      // 检查登录信息
+      function checkLogin() {
+        const username = document.getElementById("username").value;
+        const password = document.getElementById("password").value;
+        // 新增用户名存储
+        currentUser = username; 
+        // 这里简单假设账号密码为 1/1
+        if (userDatabase[username] === password) {
+          const loginContainer = document.getElementById("login-container");
+          const welcomeMessage = document.getElementById("welcome-message");
+          const sceneContainer = document.getElementById("scene-container");
+
+          // 密码框淡出
+          loginContainer.style.opacity = 0;
+          setTimeout(() => {
+            loginContainer.style.display = "none";
+            // 显示欢迎信息
+            welcomeMessage.textContent = `欢迎你，${username}`;
+            welcomeMessage.style.display = "block";
+            setTimeout(() => {
+              welcomeMessage.style.opacity = 1;
+              // 1 秒后欢迎信息淡出
+              setTimeout(() => {
+                welcomeMessage.style.opacity = 0;
+                setTimeout(() => {
+                  welcomeMessage.style.display = "none";
+                  // 显示场景
+                  sceneContainer.style.display = "flex";
+                  miniMap.style.display = "block"; // 显示小地图
+                  // 默认显示场景1
+                  changeScene("教室404");
+                  // 修复头像显示逻辑
+      const userAvatar = document.getElementById('user-avatar');
+      if (userAvatar) {
+        userAvatar.src = userAvatars[username] || 'https://s21.ax1x.com/2025/03/18/pEdbDU0.jpg';
+        userAvatar.style.display = 'block';
+        userAvatar.addEventListener('click', showUserInfo);
+      } else {
+        console.error('未找到用户头像元素');
+      }
+                }, 1000);
+              }, 1000);
+            }, 100);
+          }, 1000);
+        } else {
+          document.getElementById("error-message").style.display = "block";
+        }
+      }
+
+      // 切换场景
+      function changeScene(sceneName) {
+        const scene = scenes[sceneName];
+        if (!scene) return;
+
+        // 修改为更新标题元素而不是整个header
+  document.getElementById("scene-title").textContent = sceneName;
+        // 更新场景介绍
+        document.getElementById("scene-description").textContent =
+          scene.description;
+        // 设置场景背景图片
+        const sceneContainer = document.getElementById("scene-container");
+        sceneContainer.style.backgroundImage = `url(${scene.backgroundImage})`;
+
+        // 清空按钮容器
+        const buttonContainer = document.getElementById("button-container");
+        buttonContainer.innerHTML = "";
+
+        // 动态生成按钮
+        scene.neighbors.forEach((neighbor) => {
+          const button = document.createElement("button");
+          button.textContent = neighbor;
+          button.onclick = () => changeScene(neighbor);
+          // 添加鼠标悬停事件
+          button.onmouseover = () => highlightMiniMapNode(neighbor);
+          button.onmouseout = () => drawMiniMap(sceneName);
+          buttonContainer.appendChild(button);
+        });
+
+        // 添加调查按钮
+        if (scene.investigationResult) {
+          const investigationButton = document.createElement("button");
+          investigationButton.textContent = "调查";
+          investigationButton.onclick = () => {
+            showInvestigationResult(scene.investigationResult);
+            // 在弹窗中生成物品按钮
+            const itemsContainer = document.getElementById(
+              "investigation-items"
+            );
+            itemsContainer.innerHTML = "";
+            if (scene.items) {
+              scene.items.forEach((item) => {
+                // 添加背包检查：只显示未拾取的物品
+                if (!backpack.some((i) => i.name === item.name)) {
+                  const itemButton = document.createElement("button");
+                  itemButton.textContent = "拾取" + item.name;
+                  itemButton.onclick = () => pickItem(item, itemButton);
+                  itemsContainer.appendChild(itemButton);
+                }
+              });
+            }
+          };
+          buttonContainer.appendChild(investigationButton);
+        }
+
+        // 绘制小地图
+        drawMiniMap(sceneName);
+
+        // 显示背包按钮
+        const backpackButton = document.getElementById("backpack-button");
+        backpackButton.style.display = "block";
+      }
+
+      // 绘制小地图
+      function drawMiniMap(currentScene) {
+        const canvas = document.getElementById("mini-map");
+        const ctx = canvas.getContext("2d");
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // 绘制场景点和连接线
+        for (const sceneName in scenes) {
+          const scene = scenes[sceneName];
+          ctx.beginPath();
+          ctx.arc(scene.mapX, scene.mapY, 5, 0, 2 * Math.PI);
+          ctx.fillStyle = sceneName === currentScene ? "red" : "white";
+          ctx.fill();
+
+          // 绘制连接线
+          scene.neighbors.forEach((neighbor) => {
+            const neighborScene = scenes[neighbor];
+            ctx.beginPath();
+            ctx.moveTo(scene.mapX, scene.mapY);
+            ctx.lineTo(neighborScene.mapX, neighborScene.mapY);
+            ctx.strokeStyle = "white";
+            ctx.stroke();
+          });
+        }
+      }
+      // 高亮小地图中的节点
+      function highlightMiniMapNode(sceneName) {
+        const currentScene =
+          document.getElementById("scene-header").textContent;
+        const canvas = document.getElementById("mini-map");
+        const ctx = canvas.getContext("2d");
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // 绘制场景点和连接线
+        for (const key in scenes) {
+          const scene = scenes[key];
+          ctx.beginPath();
+          ctx.arc(scene.mapX, scene.mapY, 5, 0, 2 * Math.PI);
+          ctx.fillStyle =
+            key === currentScene
+              ? "red"
+              : key === sceneName
+              ? "yellow"
+              : "white";
+          ctx.fill();
+
+          // 绘制连接线
+          scene.neighbors.forEach((neighbor) => {
+            const neighborScene = scenes[neighbor];
+            ctx.beginPath();
+            ctx.moveTo(scene.mapX, scene.mapY);
+            ctx.lineTo(neighborScene.mapX, neighborScene.mapY);
+            ctx.strokeStyle = "white";
+            ctx.stroke();
+          });
+        }
+      }
+    </script>
+  </body>
+</html>
