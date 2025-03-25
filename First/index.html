@@ -1,11 +1,11 @@
-
 <!DOCTYPE html>
 <html>
   <head>
     <!-- 原有 CSS 代码保持不变 -->
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>一欢宴迎客</title>
+    <link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon" />
+    <title>一·欢宴迎客</title>
     <style>
       /* 全局样式重置 */
       * {
@@ -39,7 +39,7 @@
 
       /* 输入框容器样式 */
       #login-container {
-        display: none;
+        display: block;
         text-align: center;
         position: absolute;
         top: 50%;
@@ -51,9 +51,10 @@
 
       /* 欢迎信息样式 */
       #welcome-message {
-        display: none;
+        display: block;
+        z-index: 9999;
         text-align: center;
-        position: absolute;
+        position: fixed;
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
@@ -89,6 +90,9 @@
       /* 场景显示区域样式 */
       #scene-container {
         display: none;
+        opacity: 1;
+        z-index: 10;
+        position: relative;
         flex-direction: column;
         height: 100vh;
         width: 100%;
@@ -171,6 +175,7 @@
         position: fixed;
         bottom: 20px;
         right: 20px;
+        z-index: 1000;
         margin: 5px;
         padding: 10px 20px;
         background-color: black;
@@ -260,10 +265,12 @@
         border-radius: 5px;
         padding: 20px;
         width: 300px;
+        max-height: 70vh; /* 新增最大高度 */
         min-height: 150px; /* 新增最小高度 */
         z-index: 9999;
         display: none;
         box-shadow: 0 0 20px #00ffcc; /* 添加发光效果 */
+        overflow-y: auto; /* 新增垂直滚动 */
         display: flex; /* 新增弹性布局 */
         align-items: center; /* 垂直居中 */
         justify-content: center; /* 水平居中 */
@@ -276,9 +283,14 @@
         margin: 0; /* 移除默认段落边距 */
         max-width: 100%; /* 防止文本溢出 */
         word-break: break-word; /* 允许自动换行 */
+        /* 新增滚动容器样式 */
+        max-height: calc(70vh - 40px); /* 根据弹窗高度调整 */
+        overflow-y: auto; /* 允许内容滚动 */
+        padding: 10px;
       }
 
       #user-avatar {
+        display: inline-block !important;
         position: static !important; /* 覆盖之前的fixed定位 */
         margin-left: 10px;
         border-radius: 50%;
@@ -321,7 +333,8 @@
             cursor: pointer;
             display: none;
             z-index: 9999;
-          ">
+          "
+        />
       </div>
       <div id="scene-description">这里是场景的介绍...</div>
       <div id="button-container">
@@ -329,10 +342,23 @@
       </div>
     </div>
     <!-- 新增用户基础信息弹出框 -->
-    <div id="user-info-popup" style="display: none; position: fixed; top: 50px; right: 10px; background-color: rgba(0, 0, 0, 0.8); border: 2px solid #00ffcc; border-radius: 5px; padding: 20px; width: 200px; z-index: 100;">
+    <div
+      id="user-info-popup"
+      style="
+        display: none;
+        position: fixed;
+        top: 50px;
+        right: 10px;
+        background-color: rgba(0, 0, 0, 0.8);
+        border: 2px solid #00ffcc;
+        border-radius: 5px;
+        padding: 20px;
+        width: 200px;
+        z-index: 100;
+      "
+    >
       <h2 id="user-info-username"></h2>
       <p id="user-info-other"></p>
-    </div>
     </div>
     <button id="backpack-button" onclick="toggleBackpack()">背包</button>
     <!-- 背包界面 -->
@@ -381,10 +407,12 @@
         const backpackContainer = document.getElementById("backpack-container");
         if (backpackContainer.style.display === "none") {
           backpackContainer.style.display = "block";
+          backpackContainer.style.zIndex = "999"; // 设置合适层级
           updateBackpackItems();
         } else {
           backpackContainer.style.display = "none";
         }
+        event.stopPropagation(); // 阻止事件冒泡
       }
 
       // 更新背包中的物品显示
@@ -403,7 +431,7 @@
       function showItemInfo(item) {
         const itemInfoPopup = document.getElementById("item-info-popup");
         const itemInfo = document.getElementById("item-info");
-        itemInfo.textContent = item.description;
+        itemInfo.innerHTML = item.description;
         itemInfoPopup.style.display = "block";
 
         function clickHandler(e) {
@@ -436,7 +464,7 @@
         const investigationResult = document.getElementById(
           "investigation-result"
         );
-        investigationResult.textContent = result;
+        investigationResult.innerHTML = result;
         investigationPopup.style.display = "block";
 
         // 同步延迟绑定逻辑
@@ -467,11 +495,13 @@
       // 存储每个场景的信息
       const scenes = {
         黑云压城: {
-          description:
-            "黑云压城城欲摧，血日绽空天欲明。",
+          description: "黑云压城城欲摧，血日绽空天将明。",
           neighbors: ["开门献城"],
-          backgroundImage: "https://s21.ax1x.com/2025/03/23/pEBFla6.png",
-          investigationResult: "你听到了侵略者铁骑的怒吼，大地的振动声沉闷。城外的战斗染红了晚霞，比晚风更冷的是守城将士们的心。",
+          mapX: 100,
+          mapY: 200,
+          backgroundImage: "https://s21.ax1x.com/2025/03/25/pEBbJl8.md.png",
+          investigationResult:
+            "你听到了侵略者铁骑的怒吼，大地的振动声沉闷。城外的战争染红了晚霞，比晚风更冷的是守城将士们的心。",
           items: [
             {
               name: "燕脂",
@@ -479,83 +509,195 @@
             },
             {
               name: "鼓槌",
-              description: "被战士们的血液染上了黑色，但鼓声从未停歇。",
+              description: "被战士们的血液染上了黑色，但鼓声从未停歇",
             },
             {
               name: "断成两截的枪",
-              description: "非常沉重坚固的一柄钢枪，似乎不像是战斗中损坏的。",
+              description: "非常沉重坚固的一柄钢枪，似乎不像是战斗中损坏的",
             },
           ],
         },
         开门献城: {
           description: "王爷...王爷......",
-          neighbors: ["逃离", "静观其变"],
+          neighbors: ["献媚"],
           mapX: 100,
-          mapY: 100,
-          backgroundImage: "https://s21.ax1x.com/2025/03/23/pEBEKqs.png",
+          mapY: 190,
+          backgroundImage: "https://s21.ax1x.com/2025/03/25/pEBb3fP.md.png",
           investigationResult: "",
           items: [
             {
-              name: "地上残破的报纸",
-              description: "...2007年，德木中学发生3起...",
+              name: "扯下的勋章",
+              description: "...荣耀...呵呵...",
             },
           ],
         },
-        左侧走廊: {
-          description: "",
-          neighbors: ["走廊", "其他教室"],
-          mapX: 50,
-          mapY: 100,
-          backgroundImage: "https://s21.ax1x.com/2025/03/23/pEBEQZn.png",
-          investigationResult: "你在教室里发现了一些奇怪的符号。",
+        献媚: {
+          description: "诸位将军远道而来多有辛苦，收下这些银钱吧。",
+          neighbors: ["无节无骨，群情激愤"],
+          mapX: 100,
+          mapY: 180,
+          backgroundImage: "https://s21.ax1x.com/2025/03/25/pEDCM7V.md.png",
+          investigationResult: "‘令吾复！！！’",
           items: [
             {
-              name: "小纸条1",
-              description: "...吾不识青天高，黄地厚...",
+              name: "讨贼檄文",
+              description: `讨逆檄：<br>北闲王令吾复者，背全城之望，负守将之忠，<br>辜朝廷之托，玷天家之恩，诚罪不容诛！<br>其罪一也：兵戈初接即纳款，使胡骑不战而屈坚城；<br>其罪二也：尽散守军于市廛，令赤县如俎上之肉；<br>其罪三也：身为边帅而毁军法，使三军效尤而丧节；<br>其罪四也，乃其大恶：天潢贵胄，先皇之子，<br>遇寇酋突至，不图复仇，未作一矢之抗！<br>犬彘犹知守节，斯人竟忘家国！<br>虽磔裂百骸，难泄万民之愤；<br>纵锉骨扬灰，不足谢九泉之灵！`,
             },
           ],
         },
-        右侧走廊: {
-          description: "",
-          neighbors: ["走廊", "盥洗室", "楼梯"],
-          mapX: 150,
-          mapY: 100,
-          backgroundImage: "https://s21.ax1x.com/2025/03/23/pEBE1I0.png",
-          investigationResult: "你在教室里发现了一些奇怪的符号。",
+        "无节无骨，群情激愤": {
+          description: "民之目最明，民之口最宽，民之言最真，民之言最诚。",
+          neighbors: ["宴请群客"],
+          mapX: 100,
+          mapY: 170,
+          backgroundImage: "https://s21.ax1x.com/2025/03/25/pEDC3hF.md.png",
+          investigationResult: "直娘贼！狗闲王！白瞎了先帝的名声！不为人子！",
           items: [
             {
-              name: "小纸条2",
-              description: "...衣如飞鹑马如狗，临歧击剑生铜吼...",
+              name: "掉落的碎玉",
+              description: "曾作为华贵的马车装饰熠熠生辉，如今表面已满是尘土",
             },
           ],
         },
-        楼梯: {
-          description: "",
-          neighbors: ["右侧走廊"],
-          mapX: 150,
-          mapY: 150,
-          backgroundImage: "https://s21.ax1x.com/2025/03/23/pEBETW8.png",
-          investigationResult: "你在教室里发现了一些奇怪的符号。",
+        宴请群客: {
+          description: "夜",
+          neighbors: ["赴宴"],
+          mapX: 100,
+          mapY: 160,
+          backgroundImage: "https://s21.ax1x.com/2025/03/25/pEDCJ1J.md.png",
+          investigationResult: "‘诚邀诸位贵客念往日之情，赴宴议...事...’",
+          items: [
+            {
+              name: "宴会名单",
+              description:
+                "混元会——林英<br>四海会——袁幸<br>随行侍奉——赵公公<br>",
+            },
+          ],
         },
-        其他教室: {
-          description: "",
-          neighbors: ["左侧走廊"],
-          mapX: 50,
+        赴宴: {
+          description: "寅时",
+          neighbors: ["倒酒"],
+          mapX: 100,
           mapY: 150,
-          backgroundImage: "https://s21.ax1x.com/2025/03/23/pEBFla6.md.png",
-          investigationResult: "你在教室里发现了一些奇怪的符号。",
+          backgroundImage: "https://s21.ax1x.com/2025/03/25/pEBbY6S.md.png",
+          investigationResult: "敌将统帅，城中各方统领均已赴宴。",
         },
-        盥洗室: {
+        倒酒: {
+          description: "哈哈！你这小王爷倒是识趣！",
+          neighbors: ["宴成"],
+          mapX: 100,
+          mapY: 140,
+          backgroundImage: "https://s21.ax1x.com/2025/03/25/pEBb1Yt.md.png",
+          investigationResult: "杯酒释怀",
+        },
+        宴成: {
           description: "",
-          neighbors: ["右侧走廊"],
-          mapX: 150,
+          neighbors: ["万事俱备"],
+          mapX: 100,
+          mapY: 130,
+          backgroundImage: "https://s21.ax1x.com/2025/03/25/pEDC1tU.md.png",
+          investigationResult: "何处传来烟火味？菜已上齐，正是开宴之时",
+        },
+        万事俱备: {
+          description: "‘还请诸位举杯痛饮，尽享此刻。’",
+          neighbors: ["侠士"],
+          mapX: 100,
+          mapY: 120,
+          backgroundImage: "https://s21.ax1x.com/2025/03/25/pEBbdTs.md.png",
+          investigationResult: "‘本王没说你们，蛮夷。’",
+        },
+        侠士: {
+          description: "",
+          neighbors: ["文人"],
+          mapX: 100,
+          mapY: 110,
+          backgroundImage:
+            "https://s1.imagehub.cc/images/2025/03/25/7c296a55e8d974d8860b499a5f74c21d.png",
+          investigationResult: `觥筹交错，酣歌畅饮<br>‘小王爷，敬你一杯！’`,
+          items: [
+            {
+              name: "门主玉佩",
+              description: "他们猜到了结局，他们早已做好准备",
+            },
+          ],
+        },
+        文人: {
+          description: "",
+          neighbors: ["义士"],
+          mapX: 100,
+          mapY: 100,
+          backgroundImage: "https://s21.ax1x.com/2025/03/25/pEDClkT.md.png",
+          investigationResult:
+            "酒不醉人人自醉，共赴黄泉路不废<br>‘得遇明主，此生无憾’",
+          items: [
+            {
+              name: "崭新的遗书",
+              description:
+                "本来攻城那日已写一份。接到请帖后，思来想去，又提笔再做一封",
+            },
+          ],
+        },
+        义士: {
+          description: "",
+          neighbors: ["酒"],
+          mapX: 100,
+          mapY: 90,
+          backgroundImage: "https://s21.ax1x.com/2025/03/25/pEDCYc9.md.png",
+          investigationResult: "孤家寡人，无牵无挂",
+          items: [
+            {
+              name: "贴身隐藏的圣旨",
+              description:
+                "‘...特令赵启暗卫吾弟，不求吾弟建功立业，但求富贵平安...’",
+            },
+          ],
+        },
+        酒: {
+          description: "",
+          neighbors: ["火"],
+          mapX: 100,
+          mapY: 80,
+          backgroundImage: "https://s21.ax1x.com/2025/03/25/pEBbGSf.md.png",
+          investigationResult: "酒杯落地，不速之客们终于知道那气味不是灶火烟气",
+          items: [
+            {
+              name: "黑色的颗粒",
+              description: "第一个人将它炼成丹送进嘴中时，不会想到未来",
+            },
+          ],
+        },
+        火: {
+          description: "",
+          neighbors: ["请君赴死"],
+          mapX: 100,
+          mapY: 70,
+          backgroundImage: "https://s21.ax1x.com/2025/03/25/pEBbtOg.md.png",
+          investigationResult: "火，火，火",
+        },
+        请君赴死: {
+          description: "",
+          neighbors: ["破晓"],
+          mapX: 100,
+          mapY: 60,
+          backgroundImage: "https://s21.ax1x.com/2025/03/25/pEBbawj.md.png",
+          investigationResult: "‘无负皇恩，无负百姓’<br>‘吾令吾复，无负天下！’",
+        },
+        破晓: {
+          description: "卯时，天光破晓",
+          neighbors: ["闭卷"],
+          mapX: 100,
           mapY: 50,
-          backgroundImage: "https://s21.ax1x.com/2025/03/23/pEBE8iV.png",
-          investigationResult: "你在教室里发现了一些奇怪的符号。",
+          backgroundImage: "https://s21.ax1x.com/2025/03/25/pEBbUmQ.md.png",
+        },
+        闭卷: {
+          description: "此间事了<br>闭卷而去<br>",
+          mapX: 100,
+          mapY: 40,
           items: [
             {
-              name: "浸湿的头发",
-              description: "有长有短，有白有黑",
+              name: "【雁门太守行】",
+              description:
+                "黑云压城城欲摧，甲光向日金鳞开。<br>角声满天秋色里，塞上燕脂凝夜紫。<br>半卷红旗临易水，霜重鼓寒声不起。<br>报君黄金台上意，提携玉龙为君死。<br>",
             },
           ],
         },
@@ -564,54 +706,58 @@
       // 模拟账号密码库
       const userDatabase = {
         "九重秋叶 溯冥": "000000",
-        "星火雨": "111111",
+        星火雨: "111111",
         1: "1",
       };
 
       // 定义用户头像映射，可根据实际情况修改
       const userAvatars = {
         "九重秋叶 溯冥": "https://s21.ax1x.com/2025/03/18/pEdbDU0.jpg",
-        "星火雨": "https://s21.ax1x.com/2025/03/18/pEdbDU0.jpg",
-        "1": "https://s21.ax1x.com/2025/03/18/pEdbDU0.jpg"
+        星火雨: "https://s21.ax1x.com/2025/03/18/pEdbDU0.jpg",
+        1: "https://s21.ax1x.com/2025/03/18/pEdbDU0.jpg",
       };
-      
-// 定义用户基础信息映射，可根据实际情况修改
-const userInfos = {
-  "九重秋叶 溯冥": {
-    other: "【如我所愿】：生效中。"
-  },
-  "星火雨": {
-    other: "【华彩假面】：生效中。"
-  },
-  "1": {
-    other: "1是所有人。"
-  }
-};
 
-// 点击窗口外关闭用户信息弹出框
-function closeUserInfoPopupOutside(event) {
-  const userInfoPopup = document.getElementById('user-info-popup');
-  if (!userInfoPopup.contains(event.target) && event.target.id!== 'user-avatar') {
-    userInfoPopup.style.display = 'none';
-    document.removeEventListener('click', closeUserInfoPopupOutside);
-  }
-}
+      // 定义用户基础信息映射，可根据实际情况修改
+      const userInfos = {
+        "九重秋叶 溯冥": {
+          other: "【如我所愿】：生效中。",
+        },
+        星火雨: {
+          other: "【华彩假面】：生效中。",
+        },
+        1: {
+          other: "1是所有人。",
+        },
+      };
 
-// 点击头像显示用户基础信息栏
-function showUserInfo() {
-  const userInfoPopup = document.getElementById('user-info-popup');
-  const userInfoUsername = document.getElementById('user-info-username');
-  const userInfoOther = document.getElementById('user-info-other');
+      // 点击窗口外关闭用户信息弹出框
+      function closeUserInfoPopupOutside(event) {
+        const userInfoPopup = document.getElementById("user-info-popup");
+        if (
+          !userInfoPopup.contains(event.target) &&
+          event.target.id !== "user-avatar"
+        ) {
+          userInfoPopup.style.display = "none";
+          document.removeEventListener("click", closeUserInfoPopupOutside);
+        }
+      }
 
-  userInfoUsername.textContent = currentUser;
-  userInfoOther.textContent = userInfos[currentUser]? userInfos[currentUser].other : '暂无更多信息';
+      // 点击头像显示用户基础信息栏
+      function showUserInfo() {
+        const userInfoPopup = document.getElementById("user-info-popup");
+        const userInfoUsername = document.getElementById("user-info-username");
+        const userInfoOther = document.getElementById("user-info-other");
 
-  userInfoPopup.style.display = 'block';
+        userInfoUsername.textContent = currentUser;
+        userInfoOther.textContent = userInfos[currentUser]
+          ? userInfos[currentUser].other
+          : "暂无更多信息";
 
-  // 添加点击事件监听器，点击窗口外关闭弹出框
-  document.addEventListener('click', closeUserInfoPopupOutside);
-}
+        userInfoPopup.style.display = "block";
 
+        // 添加点击事件监听器，点击窗口外关闭弹出框
+        document.addEventListener("click", closeUserInfoPopupOutside);
+      }
 
       // 页面加载完成后显示序章文字
       window.onload = function () {
@@ -656,13 +802,13 @@ function showUserInfo() {
         const username = document.getElementById("username").value;
         const password = document.getElementById("password").value;
         // 新增用户名存储
-        currentUser = username; 
+        currentUser = username;
         // 这里简单假设账号密码为 1/1
         if (userDatabase[username] === password) {
           const loginContainer = document.getElementById("login-container");
           const welcomeMessage = document.getElementById("welcome-message");
           const sceneContainer = document.getElementById("scene-container");
-
+          const backpackButton = document.getElementById("backpack-button");
           // 密码框淡出
           loginContainer.style.opacity = 0;
           setTimeout(() => {
@@ -677,20 +823,27 @@ function showUserInfo() {
                 welcomeMessage.style.opacity = 0;
                 setTimeout(() => {
                   welcomeMessage.style.display = "none";
-                  // 显示场景
-                  sceneContainer.style.display = "flex";
-                  miniMap.style.display = "block"; // 显示小地图
+                  const sceneContainer =
+                    document.getElementById("scene-container");
+                  sceneContainer.style.display = "flex"; // 显示场景容器
+                  sceneContainer.style.opacity = "1"; // 确保可见
+                  // 确保背包按钮可见
+                  backpackButton.style.position = "fixed"; // 新增定位设置
+                  backpackButton.style.display = "block";
+                  backpackButton.style.zIndex = "1000"; // 设置层级
                   // 默认显示场景1
-                  changeScene("教室404");
+                  changeScene("黑云压城");
                   // 修复头像显示逻辑
-      const userAvatar = document.getElementById('user-avatar');
-      if (userAvatar) {
-        userAvatar.src = userAvatars[username] || 'https://s21.ax1x.com/2025/03/18/pEdbDU0.jpg';
-        userAvatar.style.display = 'block';
-        userAvatar.addEventListener('click', showUserInfo);
-      } else {
-        console.error('未找到用户头像元素');
-      }
+                  const userAvatar = document.getElementById("user-avatar");
+                  if (userAvatar) {
+                    userAvatar.src =
+                      userAvatars[username] ||
+                      "https://s21.ax1x.com/2025/03/18/pEdbDU0.jpg";
+                    userAvatar.style.display = "block";
+                    userAvatar.addEventListener("click", showUserInfo);
+                  } else {
+                    console.error("未找到用户头像元素");
+                  }
                 }, 1000);
               }, 1000);
             }, 100);
@@ -703,15 +856,18 @@ function showUserInfo() {
       // 切换场景
       function changeScene(sceneName) {
         const scene = scenes[sceneName];
+        const sceneContainer = document.getElementById("scene-container");
+        sceneContainer.style.display = "flex"; // 显示容器
+        sceneContainer.style.opacity = "1"; // 确保可见
         if (!scene) return;
 
         // 修改为更新标题元素而不是整个header
-  document.getElementById("scene-title").textContent = sceneName;
+        document.getElementById("scene-title").textContent = sceneName;
         // 更新场景介绍
         document.getElementById("scene-description").textContent =
           scene.description;
         // 设置场景背景图片
-        const sceneContainer = document.getElementById("scene-container");
+
         sceneContainer.style.backgroundImage = `url(${scene.backgroundImage})`;
 
         // 清空按钮容器
@@ -739,24 +895,27 @@ function showUserInfo() {
             const itemsContainer = document.getElementById(
               "investigation-items"
             );
-            itemsContainer.innerHTML = "";
-            if (scene.items) {
-              scene.items.forEach((item) => {
-                // 添加背包检查：只显示未拾取的物品
-                if (!backpack.some((i) => i.name === item.name)) {
-                  const itemButton = document.createElement("button");
-                  itemButton.textContent = "拾取" + item.name;
-                  itemButton.onclick = () => pickItem(item, itemButton);
-                  itemsContainer.appendChild(itemButton);
-                }
-              });
+            if (itemsContainer) {
+              itemsContainer.innerHTML = "";
+              itemsContainer.innerHTML = "";
+              if (scene.items) {
+                scene.items.forEach((item) => {
+                  // 添加背包检查：只显示未拾取的物品
+                  if (!backpack.some((i) => i.name === item.name)) {
+                    const itemButton = document.createElement("button");
+                    itemButton.textContent = "拾取" + item.name;
+                    itemButton.onclick = () => pickItem(item, itemButton);
+                    itemsContainer.appendChild(itemButton);
+                  }
+                });
+              }
             }
           };
           buttonContainer.appendChild(investigationButton);
         }
 
         // 绘制小地图
-        drawMiniMap(sceneName);
+        //drawMiniMap(sceneName);
 
         // 显示背包按钮
         const backpackButton = document.getElementById("backpack-button");
@@ -766,26 +925,28 @@ function showUserInfo() {
       // 绘制小地图
       function drawMiniMap(currentScene) {
         const canvas = document.getElementById("mini-map");
-        const ctx = canvas.getContext("2d");
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        if (canvas) {
+          const ctx = canvas.getContext("2d");
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        // 绘制场景点和连接线
-        for (const sceneName in scenes) {
-          const scene = scenes[sceneName];
-          ctx.beginPath();
-          ctx.arc(scene.mapX, scene.mapY, 5, 0, 2 * Math.PI);
-          ctx.fillStyle = sceneName === currentScene ? "red" : "white";
-          ctx.fill();
-
-          // 绘制连接线
-          scene.neighbors.forEach((neighbor) => {
-            const neighborScene = scenes[neighbor];
+          // 绘制场景点和连接线
+          for (const sceneName in scenes) {
+            const scene = scenes[sceneName];
             ctx.beginPath();
-            ctx.moveTo(scene.mapX, scene.mapY);
-            ctx.lineTo(neighborScene.mapX, neighborScene.mapY);
-            ctx.strokeStyle = "white";
-            ctx.stroke();
-          });
+            ctx.arc(scene.mapX, scene.mapY, 5, 0, 2 * Math.PI);
+            ctx.fillStyle = sceneName === currentScene ? "red" : "white";
+            ctx.fill();
+
+            // 绘制连接线
+            scene.neighbors.forEach((neighbor) => {
+              const neighborScene = scenes[neighbor];
+              ctx.beginPath();
+              ctx.moveTo(scene.mapX, scene.mapY);
+              ctx.lineTo(neighborScene.mapX, neighborScene.mapY);
+              ctx.strokeStyle = "white";
+              ctx.stroke();
+            });
+          }
         }
       }
       // 高亮小地图中的节点
