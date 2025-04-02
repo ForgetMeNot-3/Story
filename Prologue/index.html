@@ -376,6 +376,7 @@
       const miniMap = document.getElementById("mini-map"); // 提前获取小地图元素
       let backpack = [];
       let currentUser = "";
+      let currentScene = localStorage.getItem('currentScene') || '教室404';
 
       // 切换背包界面显示状态
       function toggleBackpack() {
@@ -628,6 +629,24 @@ function showUserInfo() {
 
       // 页面加载完成后显示序章文字
       window.onload = function () {
+// 如果有保存的场景则直接进入
+if (localStorage.getItem('currentUser')) {
+  const sceneContainer = document.getElementById("scene-container");
+  const userAvatar = document.getElementById('user-avatar');
+  
+  currentUser = localStorage.getItem('currentUser');
+  backpack = JSON.parse(localStorage.getItem('backpack') || '[]');
+  
+  sceneContainer.style.display = "flex";
+  miniMap.style.display = "block";
+  userAvatar.src = userAvatars[currentUser] || 'https://s21.ax1x.com/2025/03/18/pEdbDU0.jpg';
+  userAvatar.style.display = 'block';
+  userAvatar.addEventListener('click', showUserInfo);
+  document.getElementById("backpack-button").style.display = "block";
+  changeScene(currentScene);
+  return;
+}
+
         const prologueText = document.getElementById("prologue-text");
         prologueText.style.opacity = 1;
         prologueTimeout = setTimeout(() => {
@@ -672,6 +691,8 @@ function showUserInfo() {
         currentUser = username; 
         // 这里简单假设账号密码为 1/1
         if (userDatabase[username] === password) {
+          localStorage.setItem('currentUser', username);
+          localStorage.setItem('backpack', JSON.stringify(backpack));
           const loginContainer = document.getElementById("login-container");
           const welcomeMessage = document.getElementById("welcome-message");
           const sceneContainer = document.getElementById("scene-container");
@@ -716,6 +737,7 @@ function showUserInfo() {
       // 切换场景
       function changeScene(sceneName) {
         const scene = scenes[sceneName];
+        localStorage.setItem('currentScene', sceneName);
         if (!scene) return;
 
         // 修改为更新标题元素而不是整个header
@@ -833,6 +855,10 @@ function showUserInfo() {
           });
         }
       }
+      
+      window.addEventListener('beforeunload', () => {
+        localStorage.setItem('backpack', JSON.stringify(backpack));
+      });
     </script>
   </body>
 </html>
