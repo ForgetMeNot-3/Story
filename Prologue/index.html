@@ -288,6 +288,14 @@
       #user-info-popup {
         display: none;
       }
+
+      /* 添加在现有按钮样式之后 */
+  #user-info-popup button {
+    background-color: #ff4444 !important;
+  }
+  #user-info-popup button:hover {
+    background-color: #cc0000 !important;
+  }
     </style>
   </head>
 
@@ -331,6 +339,14 @@
     <div id="user-info-popup" style="display: none; position: fixed; top: 50px; right: 10px; background-color: rgba(0, 0, 0, 0.8); border: 2px solid #00ffcc; border-radius: 5px; padding: 20px; width: 200px; z-index: 100;">
       <h2 id="user-info-username"></h2>
       <p id="user-info-other"></p>
+      <button 
+    onclick="resetGame()" 
+    style="
+      background-color: #ff4444;
+      margin-top: 15px;
+      width: 100%;
+    "
+  >重读故事</button>
     </div>
     </div>
     <!-- 小地图 -->
@@ -368,6 +384,11 @@
     <!-- 物品介绍小窗 -->
     <div id="item-info-popup" style="display: none">
       <p id="item-info"></p>
+    </div>
+    <div id="confirm-popup" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: rgba(0,0,0,0.9); padding: 20px; border: 2px solid #ff4444; border-radius: 5px; text-align: center; color: white; z-index: 99999;">
+      <p style="margin-bottom: 15px;">确定要重新阅读此篇故事？</p>
+      <button onclick="confirmReset()" style="background: #ff4444; margin-right: 10px;">重读故事</button>
+      <button onclick="cancelReset()" style="background: #666;">继续阅读</button>
     </div>
 
     <script>
@@ -859,6 +880,30 @@ if (localStorage.getItem('currentUser')) {
       window.addEventListener('beforeunload', () => {
         localStorage.setItem('backpack', JSON.stringify(backpack));
       });
+    
+    // 添加在现有函数之后
+    function resetGame() {
+      const popup = document.getElementById('confirm-popup');
+      popup.style.display = 'block';
+      
+      // 添加点击外部关闭逻辑
+      function clickHandler(e) {
+        if (!popup.contains(e.target)) {
+          popup.style.display = 'none';
+          document.removeEventListener('click', clickHandler);
+        }
+      }
+      setTimeout(() => document.addEventListener('click', clickHandler), 100);
+    }
+  
+    function confirmReset() {
+      localStorage.clear();
+      location.reload();
+    }
+  
+    function cancelReset() {
+      document.getElementById('confirm-popup').style.display = 'none';
+    }
     </script>
   </body>
 </html>
