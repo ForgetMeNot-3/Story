@@ -296,6 +296,12 @@
   #user-info-popup button:hover {
     background-color: #cc0000 !important;
   }
+
+  @keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+  }
     </style>
   </head>
 
@@ -384,6 +390,13 @@
     <!-- 物品介绍小窗 -->
     <div id="item-info-popup" style="display: none">
       <p id="item-info"></p>
+      <div id="item-actions" style="margin-top: 15px;
+    display: flex;
+    justify-content: center; /* 水平居中 */
+    flex-direction: column;
+    align-items: center; /* 垂直居中 */
+    gap: 15px;
+    width: 100%;"></div>
     </div>
     <div id="confirm-popup" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: rgba(0,0,0,0.9); padding: 20px; border: 2px solid #ff4444; border-radius: 5px; text-align: center; color: white; z-index: 99999;">
       <p style="margin-bottom: 15px;">确定要重新阅读此篇故事？</p>
@@ -415,10 +428,16 @@
         const backpackItems = document.getElementById("backpack-items");
         backpackItems.innerHTML = "";
         backpack.forEach((item) => {
+          const itemDiv = document.createElement("div");
+          itemDiv.style.margin = "10px";
+          
+          // 物品名称按钮
           const itemButton = document.createElement("button");
           itemButton.textContent = item.name;
           itemButton.onclick = () => showItemInfo(item);
-          backpackItems.appendChild(itemButton);
+          itemDiv.appendChild(itemButton);
+          
+          backpackItems.appendChild(itemDiv);
         });
       }
 
@@ -426,8 +445,40 @@
       function showItemInfo(item) {
         const itemInfoPopup = document.getElementById("item-info-popup");
         const itemInfo = document.getElementById("item-info");
+        const itemActions = document.getElementById("item-actions");
+
         itemInfo.textContent = item.description;
+        itemActions.innerHTML = ''; // 清空旧按钮
         itemInfoPopup.style.display = "block";
+
+        // 仅在盥洗室场景显示唤醒按钮
+        if (item.id === 'wet_hair' && currentScene === '盥洗室') {
+          const awakenBtn = document.createElement("button");
+          awakenBtn.textContent = "▶ 唤 醒 ◀";
+          awakenBtn.style.cssText = `
+            background: #8b0000;
+            color: white;
+            font-size: 1.5rem;
+            padding: 15px 30px;
+            border: 2px solid #ff0000;
+            border-radius: 8px;
+            box-shadow: 0 0 20px #ff0000;
+            transition: all 0.3s ease;
+            animation: pulse 2s infinite;
+          `;
+          awakenBtn.onmouseover = () => {
+            awakenBtn.style.transform = 'scale(1.1)';
+            awakenBtn.style.boxShadow = '0 0 30px #ff0000';
+          }
+          awakenBtn.onmouseout = () => {
+            awakenBtn.style.transform = 'scale(1)';
+            awakenBtn.style.boxShadow = '0 0 20px #ff0000';
+          }
+          awakenBtn.onclick = () => window.location.href = '战斗——盥洗室.html';
+          itemActions.appendChild(awakenBtn);
+        }
+
+  itemInfoPopup.style.display = "block";
 
         function clickHandler(e) {
           if (!itemInfoPopup.contains(e.target)) {
@@ -591,6 +642,8 @@
             {
               name: "浸湿的头发",
               description: "有长有短，有白有黑",
+              id: 'wet_hair', // 添加唯一标识
+              combatTrigger: true // 添加战斗触发标记
             },
           ],
         },
@@ -817,6 +870,10 @@ if (localStorage.getItem('currentUser')) {
         // 显示背包按钮
         const backpackButton = document.getElementById("backpack-button");
         backpackButton.style.display = "block";
+
+        // 新增：场景切换时刷新背包显示
+  updateBackpackItems();
+  currentScene = sceneName; // 更新当前场景变量
       }
 
       // 绘制小地图
@@ -898,6 +955,7 @@ if (localStorage.getItem('currentUser')) {
   
     function confirmReset() {
       localStorage.clear();
+      currentScene = '教室404'; // 重置当前场景
       location.reload();
     }
   
